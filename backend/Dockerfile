@@ -25,7 +25,10 @@ RUN pnpm add prisma @prisma/client
 RUN pnpm prisma generate
 
 COPY --from=builder /app/dist ./dist
+COPY docker-entrypoint.sh ./
+
+RUN chmod +x docker-entrypoint.sh
 
 EXPOSE 3000
 
-CMD ["node", "dist/main"]
+CMD ["./docker-entrypoint.sh"]

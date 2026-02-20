@@ -32,10 +32,14 @@ services:
       JWT_SECRET: your-super-secret-jwt-key-change-in-production
       JWT_EXPIRES_IN: 7d
       PORT: 3000
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_USER: ${SMTP_USER:-your-email@gmail.com}
+      SMTP_PASS: ${SMTP_PASS:-your-app-password}
+      SMTP_FROM: Library Management System <${SMTP_USER:-your-email@gmail.com}>
     depends_on:
       db:
         condition: service_healthy
-    command: sh -c "pnpm prisma migrate deploy && pnpm prisma db seed && node dist/main"
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
       interval: 30s

@@ -6,6 +6,25 @@ Production-grade Library Management System with NestJS backend and Next.js 15 fr
 
 All services are operational and ready to use!
 
+## 🆕 NEW: Profile Management & Password Reset Features
+
+Complete profile system with avatar upload and secure password reset! See `QUICKSTART_PROFILE.md` and `QUICK_REFERENCE.md` for details.
+
+**Profile Features:**
+- 👤 Profile dropdown in navbar with avatar
+- 📸 Upload/change/remove profile photo
+- ✏️ Edit name, email, phone
+- ✅ Real-time validation & image preview
+- 🎨 Shadcn UI components
+
+**Password Reset Features:**
+- 🔐 Change password from profile dropdown
+- ✅ Current password verification
+- 🔒 Secure bcrypt hashing
+- 📝 Real-time validation (min 6 chars)
+- 🎯 Immediate database update
+- 🔔 Toast notifications for feedback
+
 ## 🚀 Quick Start
 
 ### Option 1: One Command Start (Recommended)
