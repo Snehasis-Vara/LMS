@@ -25,6 +25,13 @@ Complete profile system with avatar upload and secure password reset! See `QUICK
 - 🎯 Immediate database update
 - 🔔 Toast notifications for feedback
 
+**Email OTP Features:**
+- 📧 Forgot password with email OTP
+- 🔢 6-digit OTP code (5-minute expiry)
+- ✉️ Professional email templates via Resend
+- 🔐 Secure password reset flow
+- 📖 See `EMAIL_OTP_SETUP.md` for full details
+
 ## 🚀 Quick Start
 
 ### Option 1: One Command Start (Recommended)

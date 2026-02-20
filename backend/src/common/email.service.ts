@@ -1,51 +1,37 @@
 import { Injectable, Logger } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
 @Injectable()
 export class EmailService {
-  private transporter;
+  private resend: Resend;
   private readonly logger = new Logger(EmailService.name);
 
   constructor() {
-    const smtpUser = process.env.SMTP_USER;
-    const smtpPass = process.env.SMTP_PASS;
+    const apiKey = process.env.RESEND_API_KEY;
 
-    if (!smtpUser || !smtpPass || smtpUser === 'your-email@gmail.com') {
-      this.logger.warn('SMTP credentials not configured. Email sending will be simulated.');
-      this.transporter = null;
+    if (!apiKey || apiKey === 'your-resend-api-key') {
+      this.logger.warn('⚠️  Resend API key not configured. Email sending will be simulated.');
+      this.resend = null;
     } else {
-      this.transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.SMTP_PORT) || 587,
-        secure: false,
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
-      });
+      this.resend = new Resend(apiKey);
+      this.logger.log('✅ Resend email service initialized');
     }
   }
 
   async sendOTP(email: string, otp: string) {
-    this.logger.log(`📧 Attempting to send OTP to: ${email}`);
-    this.logger.log(`🔢 OTP Generated: ${otp}`);
+    this.logger.log(`📧 Sending OTP to: ${email}`);
+    this.logger.log(`🔢 OTP: ${otp}`);
     
-    if (!this.transporter) {
-      this.logger.log(`[SIMULATED EMAIL] OTP for ${email}: ${otp}`);
-      this.logger.warn('To enable real email sending, configure SMTP credentials in .env file');
-      this.logger.log('✅ OTP saved in DB (simulated email mode)');
+    if (!this.resend) {
+      this.logger.log(`[SIMULATED] OTP for ${email}: ${otp}`);
+      this.logger.warn('Configure RESEND_API_KEY in .env to enable real emails');
       return;
     }
 
     try {
-      this.logger.log('🔌 Connecting to Gmail SMTP...');
-      this.logger.log(`📡 SMTP Host: ${process.env.SMTP_HOST || 'smtp.gmail.com'}`);
-      this.logger.log(`🔌 SMTP Port: ${process.env.SMTP_PORT || '587'}`);
-      this.logger.log(`👤 SMTP User: ${process.env.SMTP_USER}`);
-      
-      await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || process.env.SMTP_USER,
-        to: email,
+      const { data, error } = await this.resend.emails.send({
+        from: process.env.RESEND_FROM_EMAIL || 'Library Management <onboarding@resend.dev>',
+        to: [email],
         subject: 'Password Reset OTP - Library Management System',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -62,13 +48,16 @@ export class EmailService {
           </div>
         `,
       });
-      
-      this.logger.log(`✅ SMTP connected successfully`);
-      this.logger.log(`✅ Email sent successfully to: ${email}`);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      this.logger.log(`✅ Email sent successfully via Resend (ID: ${data.id})`);
     } catch (error) {
-      this.logger.error(`❌ Failed to send email to ${email}:`, error.message);
+      this.logger.error(`❌ Failed to send email: ${error.message}`);
       this.logger.log(`[FALLBACK] OTP for ${email}: ${otp}`);
-      this.logger.warn('Email sending failed, but OTP is saved in database');
+      // Don't throw error - OTP is still saved in database and logged
     }
   }
 }
